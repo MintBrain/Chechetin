@@ -8,6 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, Template
+from openpyxl import Workbook
+from openpyxl.styles import Font, Border, Side, Alignment
+from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
 
 dic_naming = {
     "name": "Название",
@@ -33,9 +36,19 @@ class UserInput:
     def __init__(self):
         self.file_name = input('Введите название файла: ')
         self.job_name = input('Введите название профессии: ')
+        self.choose = input('Введите данные для печати: ')
 
         # self.file_name = 'vacancies_by_year.csv'
         # self.job_name = 'Аналитик'
+        # self.choose = 'Статистика'
+
+        self.choose_check()
+
+    def choose_check(self):
+        if self.choose not in ['Вакансии', 'Статистика']:
+            print('Некорректный аргумент. Введите: Вакансии или Статистика.')
+            self.choose = input('Введите данные для печати: ')
+            self.choose_check()
 
 
 class DataSet:
@@ -155,13 +168,13 @@ class Statistics:
 
 class Report:
     def __init__(self):
-        self.file_name_output = 'report.pdf'
-        self.img_path = os.path.abspath('graph_t.png')
         self.heads_by_year = ['Год', 'Средняя зарплата', f'Средняя зарплата - {user_input.job_name}',
                               'Количество вакансий', f'Количество вакансий - {user_input.job_name}']
         self.heads_by_area = ['Город', 'Уровень зарплат', ' ', 'Город', 'Доля вакансий']
 
     def generate_pdf(self):
+        self.generate_image()
+        img_path = os.path.abspath('graph_t.png')
         table_html_template = '''
         <table>
             <tr>
@@ -203,9 +216,9 @@ class Report:
 
         env = Environment(loader=FileSystemLoader('.'))
         template = env.get_template("pdf_template.html")
-        pdf_template = template.render({'job_name': user_input.job_name, 'img_path': self.img_path, 'table1': table1, 'table2': table2})
+        pdf_template = template.render({'job_name': user_input.job_name, 'img_path': img_path, 'table1': table1, 'table2': table2})
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
-        pdfkit.from_string(pdf_template, self.file_name_output, configuration=config, options={"enable-local-file-access": ""})
+        pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options={"enable-local-file-access": ""})
 
     def generate_image(self):
         fig = plt.figure()
@@ -263,13 +276,74 @@ class Report:
         graf_4.pie(data, labels=['Другие'] + list(st.sorted_area_num.keys()), textprops={'fontsize': 6})
         graf_4.axis('equal')
 
+    @staticmethod
+    def cell_format(cell, align, is_area_page=False):
+        thin = Side(border_style='thin', color='000000')
+
+        if is_area_page and cell.column_letter == 'E':
+            cell.number_format = FORMAT_PERCENTAGE_00
+
+        if is_area_page and cell.column_letter == 'C':
+            cell.border = Border(left=thin, right=thin)
+        else:
+            cell.border = Border(thin, thin, thin, thin)
+
+        if cell.row != 1:
+            cell.alignment = Alignment(horizontal=align)
+        return Report.as_text(cell.value)
+
+    @staticmethod
+    def as_text(val):
+        if val is None:
+            return ""
+        return str(val)
+
+    def generate_excel(self):
+        wb = Workbook()
+        ws_year = wb.active
+        ws_year.title = 'Статистика по годам'
+        heads_by_year = ['Год', 'Средняя зарплата', f'Средняя зарплата - {user_input.job_name}', 'Количество вакансий', f'Количество вакансий - {user_input.job_name}']
+
+        for i, head in enumerate(heads_by_year):
+            ws_year.cell(1, i+1, head).font = Font(bold=True)
+            ws_year.cell(1, i + 1).alignment = Alignment(horizontal='left')
+
+        for year, value in st.year_to_salary.items():
+            ws_year.append([year, value, st.year_to_salary_for_job[year], st.year_to_vac_num[year], st.year_to_vac_num_for_job[year]])
+
+        for column in ws_year.columns:
+            length = max(len(self.cell_format(cell, 'right')) for cell in column)
+            ws_year.column_dimensions[column[0].column_letter].width = length + 2
+
+        ws_area = wb.create_sheet('Статистика по городам')
+        heads_by_area = ['Город', 'Уровень зарплат', ' ', 'Город', 'Доля вакансий']
+        for i, head in enumerate(heads_by_area):
+            ws_area.cell(1, i + 1, head).font = Font(bold=True)
+            ws_area.cell(1, i + 1).alignment = Alignment(horizontal='left')
+
+        for i in range(len(st.sorted_area_salary)):
+            ws_area.append([list(st.sorted_area_salary.keys())[i], list(st.sorted_area_salary.values())[i], ' ', list(st.sorted_area_num.keys())[i], list(st.sorted_area_num.values())[i]])
+
+        for column in ws_area.columns:
+            lengths = []
+            for cell in column:
+                if column[0].column_letter in ['B', 'E']:
+                    self.cell_format(cell, 'right', True)
+                else:
+                    self.cell_format(cell, 'left', True)
+                lengths.append(len(self.as_text(cell.value)))
+            ws_area.column_dimensions[column[0].column_letter].width = max(lengths) + 2
+
+        wb.save('report.xlsx')
+
 
 if __name__ == '__main__':
     user_input = UserInput()
     st = Statistics()
     data_set = DataSet(user_input)
     st.calc_average()
-    st.print()
     rep = Report()
-    rep.generate_image()
-    rep.generate_pdf()
+    if user_input.choose == 'Вакансии':
+        rep.generate_pdf()
+    else:
+        rep.generate_excel()
