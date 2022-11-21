@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+    <style>
+        body {
+            background: #ffffff;
+            text-align: center;
+            font-family: Verdana, sans-serif;
+        }
+
+        img {
+            width: 900px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: auto;
+        }
+
+        th,
+        td {
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        .empty {
+            border: none;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+
+        .table2 td,
+        .table2 th {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        caption:before, caption:after {
+            content: "\274B";
+            margin: 0 10px;
+        }
+
+    </style>
+</head>
+<body>
+<h1>Аналитика по зарплатам и городам для профессии {{job_name}}</h1>
+<img src={{img_path}}>
+<h2>Статистика по годам</h2>
+{{table1}}
+<h2>Статистика по городам</h2>
+<div class="table2">
+    {{table2}}
+</div>
+</body>
+</html>
