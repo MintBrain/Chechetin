@@ -36,27 +36,27 @@ class UserInput:
     def __init__(self):
         self.file_name = input('Введите название файла: ')
         self.job_name = input('Введите название профессии: ')
-        self.choose = input('Введите данные для печати: ')
+        # self.choose = input('Введите данные для печати: ')
 
         # self.file_name = 'vacancies_by_year.csv'
         # self.job_name = 'Аналитик'
         # self.choose = 'Статистика'
 
-        self.choose_check()
+        # self.choose_check()
 
-    def choose_check(self):
-        if self.choose not in ['Вакансии', 'Статистика']:
-            print('Некорректный аргумент. Введите: Вакансии или Статистика.')
-            self.choose = input('Введите данные для печати: ')
-            self.choose_check()
+    # def choose_check(self):
+    #     if self.choose not in ['Вакансии', 'Статистика']:
+    #         print('Некорректный аргумент. Введите: Вакансии или Статистика.')
+    #         self.choose = input('Введите данные для печати: ')
+    #         self.choose_check()
 
 
 class DataSet:
-    def __init__(self, user_input):
+    def __init__(self, st, user_input):
         self.file_name = user_input.file_name
         self.csv_headers, self.read_data = self.csv_reader()
         self.vacancies_objects = []
-        self.csv_filter()
+        self.csv_filter(st, user_input)
 
     def csv_reader(self):
         vacancies_file = open(self.file_name, encoding='utf_8_sig')
@@ -71,14 +71,14 @@ class DataSet:
         vacancies_file.seek(0)
         return [vacancies_reader.__next__(), [x for x in vacancies_reader]]
 
-    def csv_filter(self):
+    def csv_filter(self, st, user_input):
         for vacancy_data in self.read_data:
             if len(vacancy_data) == len(self.csv_headers) and vacancy_data.count('') == 0:
-                self.vacancies_objects.append(Vacancy(vacancy_data))
+                self.vacancies_objects.append(Vacancy(vacancy_data, st, user_input))
 
 
 class Vacancy:
-    def __init__(self, vacancy_data):
+    def __init__(self, vacancy_data, st, user_input):
         vacancy_data = [self.clean_value(s.split('\n')) for s in vacancy_data]
         i, c = 0, 0
         if len(vacancy_data) > 6:
@@ -90,7 +90,7 @@ class Vacancy:
         self.area_name = vacancy_data[c + 4]
         self.published_at = datetime.strptime(vacancy_data[c + 5], "%Y-%m-%dT%H:%M:%S%z")
 
-        st.add_data(self)
+        st.add_data(self, user_input)
 
     @staticmethod
     def clean_value(strings):
@@ -126,7 +126,7 @@ class Statistics:
         self.sorted_area_salary = {}
         self.sorted_area_num = {}
 
-    def add_data(self, vacancy):
+    def add_data(self, vacancy, user_input):
         self.year_to_salary[vacancy.published_at.year] = self.year_to_salary.setdefault(vacancy.published_at.year, 0) + vacancy.salary.average_salary
         self.year_to_vac_num[vacancy.published_at.year] = self.year_to_vac_num.setdefault(vacancy.published_at.year, 0) + 1
         self.area_to_salary[vacancy.area_name] = self.area_to_salary.setdefault(vacancy.area_name, 0) + vacancy.salary.average_salary
@@ -138,7 +138,7 @@ class Statistics:
             self.year_to_salary_for_job[vacancy.published_at.year] = self.year_to_salary_for_job.setdefault(vacancy.published_at.year, 0)
             self.year_to_vac_num_for_job[vacancy.published_at.year] = self.year_to_vac_num_for_job.setdefault(vacancy.published_at.year, 0)
 
-    def calc_average(self):
+    def calc_average(self, data_set):
         self.year_to_salary = {k: self.average(k, v, self.year_to_vac_num) for k, v in self.year_to_salary.items()}
         self.area_to_salary = {k: self.average(k, v, self.area_to_vac_num) for k, v in self.area_to_salary.items()}
         self.year_to_salary_for_job = {k: self.average(k, v, self.year_to_vac_num_for_job) for k, v in self.year_to_salary_for_job.items()}
@@ -167,13 +167,13 @@ class Statistics:
 
 
 class Report:
-    def __init__(self):
+    def __init__(self, user_input):
         self.heads_by_year = ['Год', 'Средняя зарплата', f'Средняя зарплата - {user_input.job_name}',
                               'Количество вакансий', f'Количество вакансий - {user_input.job_name}']
         self.heads_by_area = ['Город', 'Уровень зарплат', ' ', 'Город', 'Доля вакансий']
 
-    def generate_pdf(self):
-        self.generate_image()
+    def generate_pdf(self, st, user_input):
+        self.generate_image(st, user_input)
         img_path = os.path.abspath('graph_t.png')
         table_html_template = '''
         <table>
@@ -220,22 +220,22 @@ class Report:
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options={"enable-local-file-access": ""})
 
-    def generate_image(self):
+    def generate_image(self, st, user_input):
         fig = plt.figure()
         width = 0.4
         x_n = np.arange(len(st.year_to_salary.keys()))
         x_list1 = x_n - width / 2
         x_list2 = x_n + width / 2
-        self.ax_1(fig, x_list1, x_list2, x_n, width)
-        self.ax_2(fig, x_list1, x_list2, x_n, width)
-        self.ax_3(fig)
-        self.ax_4(fig)
+        self.ax_1(st, user_input, fig, x_list1, x_list2, x_n, width)
+        self.ax_2(st, user_input, fig, x_list1, x_list2, x_n, width)
+        self.ax_3(st, fig)
+        self.ax_4(st, fig)
 
         plt.tight_layout()
         plt.savefig('graph_t.png', dpi=300)
 
     @staticmethod
-    def ax_1(fig, x_list1, x_list2, x_n, width):
+    def ax_1(st, user_input, fig, x_list1, x_list2, x_n, width):
         graf_1 = fig.add_subplot(221)
         graf_1.set_title('Уровень зарплат по городам')
         graf_1.bar(x_list1, st.year_to_salary.values(), width, label='средняя з/п')
@@ -246,7 +246,7 @@ class Report:
         graf_1.grid(True, axis='y')
 
     @staticmethod
-    def ax_2(fig, x_list1, x_list2, x_n, width):
+    def ax_2(st, user_input, fig, x_list1, x_list2, x_n, width):
         graf_2 = fig.add_subplot(222)
         graf_2.set_title('Количество вакансий по годам')
         graf_2.bar(x_list1, st.year_to_vac_num.values(), width, label='Количество вакансий')
@@ -257,7 +257,7 @@ class Report:
         graf_2.grid(True, axis='y')
 
     @staticmethod
-    def ax_3(fig):
+    def ax_3(st, fig):
         graf_3 = fig.add_subplot(223)
         graf_3.set_title('Уровень зарплат по городам')
         x_n = np.arange(len(st.sorted_area_salary.keys()))
@@ -269,7 +269,7 @@ class Report:
         graf_3.invert_yaxis()
 
     @staticmethod
-    def ax_4(fig):
+    def ax_4(st, fig):
         graf_4 = fig.add_subplot(224)
         graf_4.set_title('Доля вакансий по городам')
         data = [1 - sum(st.sorted_area_num.values())] + list(st.sorted_area_num.values())
@@ -298,7 +298,7 @@ class Report:
             return ""
         return str(val)
 
-    def generate_excel(self):
+    def generate_excel(self, st, user_input):
         wb = Workbook()
         ws_year = wb.active
         ws_year.title = 'Статистика по годам'
@@ -337,13 +337,11 @@ class Report:
         wb.save('report.xlsx')
 
 
-if __name__ == '__main__':
+def main():
     user_input = UserInput()
     st = Statistics()
-    data_set = DataSet(user_input)
-    st.calc_average()
-    rep = Report()
-    if user_input.choose == 'Вакансии':
-        rep.generate_pdf()
-    else:
-        rep.generate_excel()
+    data_set = DataSet(st, user_input)
+    st.calc_average(data_set)
+    rep = Report(user_input)
+    rep.generate_pdf(st, user_input)
+
