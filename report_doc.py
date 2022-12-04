@@ -4,6 +4,7 @@ import re
 import sys
 import os.path
 import pdfkit
+import doctest
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -41,8 +42,8 @@ class UserInput:
         """
         Инициализирует объект UserInput. Выполняет чтение из поля ввода.
         """
-        self.file_name = input('Введите название файла: ')
-        self.job_name = input('Введите название профессии: ')
+        # self.file_name = input('Введите название файла: ')
+        # self.job_name = input('Введите название профессии: ')
 
         self.file_name = 'vacancies_by_year.csv'
         self.job_name = 'Аналитик'
@@ -117,6 +118,15 @@ class Vacancy:
             vacancy_data ([str]): Массив строк с полями данных вакансии.
             st (Statistics): Объект класса Statistics. Представляет данные по статистике.
             user_input (UserInput): Объект класса UserInput. Представляет данные о введенных данных
+
+            >>> type(Vacancy(['IT аналитик', '35000.0', '45000.0', 'RUR', 'Санкт-Петербург', '2007-12-03T17:34:36+0300'], Statistics(), UserInput())).__name__
+            'Vacancy'
+            >>> Vacancy(['IT аналитик', '35000.0', '45000.0', 'RUR', 'Санкт-Петербург', '2007-12-03T17:34:36+0300'], Statistics(), UserInput()).name
+            'IT аналитик'
+            >>> Vacancy(['IT аналитик', '35000.0', '45000.0', 'RUR', 'Санкт-Петербург', '2007-12-03T17:34:36+0300'], Statistics(), UserInput()).area_name
+            'Санкт-Петербург'
+            >>> Vacancy(['IT аналитик', '35000.0', '45000.0', 'RUR', 'Санкт-Петербург', '2007-12-03T17:34:36+0300'], Statistics(), UserInput()).published_at.timestamp()
+            1196692476.0
         """
         vacancy_data = [self.clean_value(s.split('\n')) for s in vacancy_data]
         i, c = 0, 0
@@ -141,6 +151,15 @@ class Vacancy:
 
         Returns:
             str or List[str]: Очищенная строка
+
+            >>> Vacancy.clean_value(['IT аналитик'])
+            'IT аналитик'
+            >>> Vacancy.clean_value(['35000.0'])
+            '35000.0'
+            >>> Vacancy.clean_value(['2007-12-03T17:34:36+0300'])
+            '2007-12-03T17:34:36+0300'
+            >>> Vacancy.clean_value(['<p> IT аналитик </p>'])
+            'IT аналитик'
         """
         html_tag_pattern = re.compile('<.*?>')
         result = []
@@ -162,7 +181,7 @@ class Salary:
         salary_from (float): Нижняя граница вилки оклада
         salary_to (float): Верхняя граница вилки оклада
         salary_currency (str): Валюта оклада
-        average_salary (int): Средняя зарплата в рублях
+        average_salary (int or float): Средняя зарплата в рублях
     """
     def __init__(self, salary_from, salary_to, salary_currency):
         """
@@ -172,6 +191,19 @@ class Salary:
             salary_from (str): Нижняя граница вилки оклада
             salary_to (str): Верхняя граница вилки оклада
             salary_currency (str): Валюта оклада
+
+            >>> type(Salary('10.0', '20.4', 'RUR')).__name__
+            'Salary'
+            >>> Salary('10.0', '20.4', 'RUR').salary_from
+            10.0
+            >>> Salary('10.0', '20.4', 'RUR').salary_to
+            20.4
+            >>> Salary('10.0', '20.4', 'RUR').salary_currency
+            'RUR'
+            >>> Salary('10.0', '20.4', 'RUR').average_salary
+            15
+            >>> Salary('10.0', '20.4', 'USD').average_salary
+            909.9
         """
         self.salary_from = float(salary_from)
         self.salary_to = float(salary_to)
@@ -460,3 +492,8 @@ def main():
     st.calc_average(data_set)
     rep = Report(user_input)
     rep.generate_pdf(st, user_input)
+
+
+if __name__ == '__main__':
+    # main()
+    doctest.testmod(report=True)
