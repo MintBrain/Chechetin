@@ -6,10 +6,13 @@ import os.path
 import pdfkit
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, Template
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side, Alignment
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
+import dateutil.parser
 
 dic_naming = {
     "name": "Название",
@@ -35,19 +38,9 @@ class UserInput:
     def __init__(self):
         self.file_name = input('Введите название файла: ')
         self.job_name = input('Введите название профессии: ')
-        # self.choose = input('Введите данные для печати: ')
 
         # self.file_name = 'vacancies_by_year.csv'
         # self.job_name = 'Аналитик'
-        # self.choose = 'Статистика'
-
-        # self.choose_check()
-
-    # def choose_check(self):
-    #     if self.choose not in ['Вакансии', 'Статистика']:
-    #         print('Некорректный аргумент. Введите: Вакансии или Статистика.')
-    #         self.choose = input('Введите данные для печати: ')
-    #         self.choose_check()
 
 
 class DataSet:
@@ -91,6 +84,14 @@ class Vacancy:
 
         st.add_data(self, user_input)
 
+    # @staticmethod
+    # def date_format(date):
+    #     return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S%z")
+
+    # @staticmethod
+    # def date_format(date):
+    #     return dateutil.parser.parse(date)
+
     @staticmethod
     def date_format(date):
         class dotdict(dict):  # Для получения значения через точку.
@@ -100,6 +101,10 @@ class Vacancy:
             __delattr__ = dict.__delitem__
 
         return dotdict({'year': date[0:4]})  # Для статистики нужен только год.
+
+    # @staticmethod
+    # def date_format(date):
+    #     return pd.to_datetime(date)
 
     @staticmethod
     def clean_value(strings):
