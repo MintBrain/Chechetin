@@ -3,6 +3,7 @@ import os
 import time
 import pandas as pd
 from multiprocessing import Process, Queue
+from concurrent.futures import ThreadPoolExecutor
 
 dic_naming = {
     "name": "Название",
@@ -88,6 +89,36 @@ def calc_year_stats_mp():
     year_by_salary_job = dict(sorted(year_by_salary_job.items(), key=lambda i: i[0]))
 
 
+def calc_year_stat_cf(data):
+    file_name, job_name = data
+    df = pd.read_csv(file_name)
+    fill_df(df)
+    data_job = df[df['name'].str.contains(job_name, case=False)]
+
+    return [int(df['published_at'].values[0][:4]), df.shape[0], math.floor(df['average_salary'].mean()),
+            data_job.shape[0], math.floor(data_job['average_salary'].mean())]
+
+
+def calc_year_stats_cf():
+    global year_by_vac_num, year_by_salary, year_by_vac_num_job, year_by_salary_job
+    data_to_calc = []
+    for file_name in os.listdir(user_input.file_name):
+        data_to_calc.append([user_input.file_name + '/' + file_name, user_input.job_name])
+    with ThreadPoolExecutor(max_workers=12) as Executor:
+        res = Executor.map(calc_year_stat_cf, data_to_calc)
+    results = list(res)
+    for data in results:
+        year_by_vac_num[data[0]] = data[1]
+        year_by_salary[data[0]] = data[2]
+        year_by_vac_num_job[data[0]] = data[3]
+        year_by_salary_job[data[0]] = data[4]
+
+    year_by_vac_num = dict(sorted(year_by_vac_num.items(), key=lambda i: i[0]))
+    year_by_salary = dict(sorted(year_by_salary.items(), key=lambda i: i[0]))
+    year_by_vac_num_job = dict(sorted(year_by_vac_num_job.items(), key=lambda i: i[0]))
+    year_by_salary_job = dict(sorted(year_by_salary_job.items(), key=lambda i: i[0]))
+
+
 def calc_area_stats():
     global vac_num_by_area, salary_by_area
     df = pd.read_csv('vacancies_by_year.csv')
@@ -158,3 +189,16 @@ if __name__ == '__main__':
 
     print()
     print("Время работы c многопроцессорной обработкой: %s seconds" % round(time.time() - start_time, 4))
+    print()
+    year_by_vac_num = {}
+    year_by_salary = {}
+    year_by_vac_num_job = {}
+    year_by_salary_job = {}
+    vac_num_by_area = {}
+    salary_by_area = {}
+    start_time = time.time()
+    calc_area_stats()
+    calc_year_stats_cf()
+    print_stats()
+    print()
+    print("Время работы c concurrent.futures: %s seconds" % round(time.time() - start_time, 4))
