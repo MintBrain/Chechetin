@@ -11,3 +11,6 @@
 ![str_slice](https://user-images.githubusercontent.com/38864410/205564509-9f0ed03b-61ed-4763-bcd9-6b3ea8cba06a.png)
 ![pandas](https://user-images.githubusercontent.com/38864410/205564528-ba72d0bb-a2b1-437b-b8d2-cc5ae4a70352.png)
 ![pandas](https://user-images.githubusercontent.com/38864410/205564535-611e5782-c624-4cdd-9fb4-31dc93018d1d.png)
+
+# Задание 3.2.1
+![separate](https://user-images.githubusercontent.com/38864410/207044369-3372d685-cf9a-4716-ab2a-42c22ef18ace.png)
