@@ -1,8 +1,10 @@
 /.idea
 /venv
 /csv_files
+/csv_files_dif_currencies
 *.csv
 *.png
 *.xlsx
 *.pdf
 *.pstats
+!3-2-2.csv
