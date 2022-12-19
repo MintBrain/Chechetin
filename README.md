@@ -17,3 +17,6 @@
 
 # Задание 3.2.2
 ![mp](https://user-images.githubusercontent.com/38864410/207133962-1745547f-3b2d-458b-a8a9-71fc75eb0a1a.png)
+
+# Задание 3.2.3
+![cf](https://user-images.githubusercontent.com/38864410/207138997-9d4b6395-5645-4103-92da-97f3baf5375f.png)
