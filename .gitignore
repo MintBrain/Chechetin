@@ -7,4 +7,4 @@
 *.xlsx
 *.pdf
 *.pstats
-!checked/3-2-2.csv
+!3-2-2.csv
