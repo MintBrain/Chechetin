@@ -20,3 +20,6 @@
 
 # Задание 3.2.3
 ![cf](https://user-images.githubusercontent.com/38864410/207138997-9d4b6395-5645-4103-92da-97f3baf5375f.png)
+
+# Задание 3.3.1
+![Screenshot_638](https://user-images.githubusercontent.com/38864410/208434074-1d25aa2e-4b63-4d66-92ab-747215a5cdc8.png)
