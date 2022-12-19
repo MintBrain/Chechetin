@@ -1,6 +1,6 @@
 import pandas as pd
 
-file = 'vacancies_dif_currencies.csv'
+file = '../vacancies_dif_currencies.csv'
 df = pd.read_csv(file)
 
 df['year'] = df['published_at'].apply(lambda x: x[0:4])

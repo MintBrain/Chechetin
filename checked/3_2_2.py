@@ -30,7 +30,7 @@ class UserInput:
         # self.file_name = input('Введите название файла: ')
         # self.job_name = input('Введите название профессии: ')
 
-        self.file_name = 'csv_files'
+        self.file_name = '../csv_files'
         self.job_name = 'Аналитик'
 
 
@@ -121,7 +121,7 @@ def calc_year_stats_cf():
 
 def calc_area_stats():
     global vac_num_by_area, salary_by_area
-    df = pd.read_csv('vacancies_by_year.csv')
+    df = pd.read_csv('../vacancies_by_year.csv')
     fill_df(df)
     all_vac_num = df.shape[0]
     vac_percent = int(all_vac_num * 0.01)

@@ -228,7 +228,7 @@ class Report:
                            list(st.sorted_area_num.keys())[i], f'{round(list(st.sorted_area_num.values())[i]*100, 2)}%'])
         table2 = tm.render(heads=self.heads_by_area, rows=rows_2)
 
-        env = Environment(loader=FileSystemLoader('.'))
+        env = Environment(loader=FileSystemLoader('..'))
         template = env.get_template("pdf_template.html")
         pdf_template = template.render({'job_name': user_input.job_name, 'img_path': img_path, 'table1': table1, 'table2': table2})
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
