@@ -57,8 +57,8 @@ class Report:
                            list(st.vac_num_by_area.keys())[i], f'{round(list(st.vac_num_by_area.values())[i]*100, 2)}%'])
         table2 = tm.render(heads=self.heads_by_area, rows=rows_2)
 
-        env = Environment(loader=FileSystemLoader('..'))
-        template = env.get_template("pdf_template.html")
+        env = Environment(loader=FileSystemLoader(''))
+        template = env.get_template(r"pdf_template.html")
         pdf_template = template.render({'job_name': user_input.job_name, 'img_path': img_path, 'table1': table1, 'table2': table2})
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         pdfkit.from_string(pdf_template, 'report_3-4-2.pdf', configuration=config, options={"enable-local-file-access": ""})

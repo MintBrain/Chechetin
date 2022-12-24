@@ -10,12 +10,19 @@ pd.options.mode.chained_assignment = None
 
 class Statistics:
     def __init__(self):
-        self.year_by_vac_num = {}
-        self.year_by_salary = {}
-        self.year_by_vac_num_job = {}
-        self.year_by_salary_job = {}
-        self.vac_num_by_area = {}
-        self.salary_by_area = {}
+        # self.year_by_vac_num = {}
+        # self.year_by_salary = {}
+        # self.year_by_vac_num_job = {}
+        # self.year_by_salary_job = {}
+        # self.vac_num_by_area = {}
+        # self.salary_by_area = {}
+
+        self.year_by_vac_num = {2003: 1070, 2004: 4322, 2005: 9364, 2006: 23057, 2007: 35341, 2008: 46657, 2009: 31081, 2010: 51686, 2011: 77413, 2012: 95137, 2013: 129438, 2014: 141439, 2015: 147608, 2016: 177251, 2017: 203556, 2018: 282917, 2019: 265999, 2020: 234858, 2021: 136553, 2022: 47293}
+        self.year_by_salary = {2003: 41304, 2004: 42967, 2005: 375738, 2006: 41317, 2007: 44449, 2008: 48411, 2009: 44811, 2010: 44657, 2011: 46448, 2012: 47967, 2013: 53548, 2014: 49078, 2015: 51739, 2016: 60931, 2017: 59541, 2018: 64914, 2019: 69847, 2020: 72264, 2021: 82594, 2022: 94704}
+        self.year_by_vac_num_job = {2003: 46, 2004: 181, 2005: 424, 2006: 869, 2007: 1367, 2008: 1628, 2009: 818, 2010: 1519, 2011: 2223, 2012: 2281, 2013: 2542, 2014: 3082, 2015: 3042, 2016: 4286, 2017: 5490, 2018: 6984, 2019: 7979, 2020: 7581, 2021: 4613, 2022: 1885}
+        self.year_by_salary_job = {2003: 38353, 2004: 41907, 2005: 44621, 2006: 43250, 2007: 53936, 2008: 56297, 2009: 53320, 2010: 52702, 2011: 60252, 2012: 63380, 2013: 62928, 2014: 63348, 2015: 59868, 2016: 61864, 2017: 64567, 2018: 70152, 2019: 79580, 2020: 86362, 2021: 98609, 2022: 106732}
+        self.vac_num_by_area = {'Москва': 0.3053, 'Санкт-Петербург': 0.1079, 'Минск': 0.0265, 'Новосибирск': 0.0241, 'Нижний Новгород': 0.0216, 'Екатеринбург': 0.0207, 'Казань': 0.0205, 'Ростов-на-Дону': 0.0165, 'Алматы': 0.0165, 'Краснодар': 0.0158}
+        self.salary_by_area = {'Москва': 83695, 'Киев': 79891, 'Минск': 74149, 'Санкт-Петербург': 68747, 'Новосибирск': 64796, 'Екатеринбург': 59139, 'Краснодар': 51585, 'Казань': 51309, 'Нижний Новгород': 49915, 'Самара': 49548}
 
 
 class UserInput:
@@ -125,14 +132,14 @@ def print_stats():
 
 if __name__ == '__main__':
     st = Statistics()
-    df_res = []
-    temp_folder = 'csv_files_dif_currencies_temp'
-
+    # df_res = []
+    # temp_folder = 'csv_files_dif_currencies_temp'
+    #
     user_input = UserInput()
-    separate.main(user_input.file_name, temp_folder)
-    calc_year_stats_mp()
+    # # separate.main(user_input.file_name, temp_folder)
+    # calc_year_stats_mp()
+    # calc_area_stats()
 
-    calc_area_stats()
     new_report.main(user_input, st)
     print_stats()
-    shutil.rmtree(rf'./{temp_folder}')
+    # shutil.rmtree(rf'./{temp_folder}')
