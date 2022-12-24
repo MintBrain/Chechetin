@@ -3,8 +3,19 @@ import os
 import shutil
 import pandas as pd
 import separate
+import new_report
 from multiprocessing import Process, Queue
 pd.options.mode.chained_assignment = None
+
+
+class Statistics:
+    def __init__(self):
+        self.year_by_vac_num = {}
+        self.year_by_salary = {}
+        self.year_by_vac_num_job = {}
+        self.year_by_salary_job = {}
+        self.vac_num_by_area = {}
+        self.salary_by_area = {}
 
 
 class UserInput:
@@ -46,7 +57,7 @@ def calc_year_stat_mp(file_name, job_name, q, currencies):
 
 
 def calc_year_stats_mp():
-    global year_by_vac_num, year_by_salary, year_by_vac_num_job, year_by_salary_job, df_res
+    global st, df_res
     process = []
     q = Queue()
     currencies = pd.read_csv('currencies.csv')
@@ -58,25 +69,25 @@ def calc_year_stats_mp():
     for p in process:
         p.join(1)
         data = q.get()
-        year_by_vac_num[data[0]] = data[1]
-        year_by_salary[data[0]] = data[2]
-        year_by_vac_num_job[data[0]] = data[3]
-        year_by_salary_job[data[0]] = data[4]
+        st.year_by_vac_num[data[0]] = data[1]
+        st.year_by_salary[data[0]] = data[2]
+        st.year_by_vac_num_job[data[0]] = data[3]
+        st.year_by_salary_job[data[0]] = data[4]
         df_res.append(data[5])
 
-    year_by_vac_num = dict(sorted(year_by_vac_num.items(), key=lambda i: i[0]))
-    year_by_salary = dict(sorted(year_by_salary.items(), key=lambda i: i[0]))
-    year_by_vac_num_job = dict(sorted(year_by_vac_num_job.items(), key=lambda i: i[0]))
-    year_by_salary_job = dict(sorted(year_by_salary_job.items(), key=lambda i: i[0]))
+    st.year_by_vac_num = dict(sorted(st.year_by_vac_num.items(), key=lambda i: i[0]))
+    st.year_by_salary = dict(sorted(st.year_by_salary.items(), key=lambda i: i[0]))
+    st.year_by_vac_num_job = dict(sorted(st.year_by_vac_num_job.items(), key=lambda i: i[0]))
+    st.year_by_salary_job = dict(sorted(st.year_by_salary_job.items(), key=lambda i: i[0]))
 
 
 def calc_area_stats():
-    global vac_num_by_area, salary_by_area
+    global st
     # currencies = pd.read_csv('currencies.csv')
     # df = pd.read_csv('csv_files_dif_currencies/part_2007.csv')
     # df = fill_df(df, currencies)
-    df = pd.concat(df_res, ignore_index=True)
     # df.head(100).to_csv('3-4-1.csv', index=False, encoding='utf8')
+    df = pd.concat(df_res, ignore_index=True)
     all_vac_num = df.shape[0]
     vac_percent = int(all_vac_num * 0.01)
 
@@ -86,7 +97,7 @@ def calc_area_stats():
         .sort_values(ascending=False) \
         .head(10) \
         .to_dict()
-    vac_num_by_area = data
+    st.vac_num_by_area = data
 
     area_vac_num = df.groupby('area_name')['name']\
         .count()\
@@ -100,31 +111,28 @@ def calc_area_stats():
         .sort_values(ascending=False)\
         .head(10)\
         .to_dict()
-    salary_by_area = data
+    st.salary_by_area = data
 
 
 def print_stats():
-    print(f'Динамика уровня зарплат по годам: {year_by_salary}')
-    print(f'Динамика количества вакансий по годам: {year_by_vac_num}')
-    print(f'Динамика уровня зарплат по годам для выбранной профессии: {year_by_salary_job}')
-    print(f'Динамика количества вакансий по годам для выбранной профессии: {year_by_vac_num_job}')
-    print(f'Уровень зарплат по городам (в порядке убывания): {salary_by_area}')
-    print(f'Доля вакансий по городам (в порядке убывания): {vac_num_by_area}')
+    print(f'Динамика уровня зарплат по годам: {st.year_by_salary}')
+    print(f'Динамика количества вакансий по годам: {st.year_by_vac_num}')
+    print(f'Динамика уровня зарплат по годам для выбранной профессии: {st.year_by_salary_job}')
+    print(f'Динамика количества вакансий по годам для выбранной профессии: {st.year_by_vac_num_job}')
+    print(f'Уровень зарплат по городам (в порядке убывания): {st.salary_by_area}')
+    print(f'Доля вакансий по городам (в порядке убывания): {st.vac_num_by_area}')
 
 
 if __name__ == '__main__':
-    year_by_vac_num = {}
-    year_by_salary = {}
-    year_by_vac_num_job = {}
-    year_by_salary_job = {}
-    vac_num_by_area = {}
-    salary_by_area = {}
+    st = Statistics()
     df_res = []
+    temp_folder = 'csv_files_dif_currencies_temp'
 
     user_input = UserInput()
-    temp_folder = 'csv_files_dif_currencies_temp'
     separate.main(user_input.file_name, temp_folder)
     calc_year_stats_mp()
+
     calc_area_stats()
+    new_report.main(user_input, st)
     print_stats()
     shutil.rmtree(rf'./{temp_folder}')
