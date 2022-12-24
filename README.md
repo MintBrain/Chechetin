@@ -27,3 +27,6 @@
 # Задание 3.3.2
 Пересчёт аналитики для новых, более полных данных.
 ![Screenshot_640](https://user-images.githubusercontent.com/38864410/208512060-8b2bd9a5-1bb8-4858-8e90-96cc35b88800.png)
+
+# Задание 3.4.1
+![Screenshot_643](https://user-images.githubusercontent.com/38864410/209432942-5bfc17e3-f20c-4866-a925-4953bf3c554a.png)
