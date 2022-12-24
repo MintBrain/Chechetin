@@ -1,15 +1,10 @@
 import math
 import os
+import shutil
 import pandas as pd
+import separate
 from multiprocessing import Process, Queue
 pd.options.mode.chained_assignment = None
-
-dic_naming = {
-    "name": "Название",
-    "get_salary": "Оклад",
-    "area_name": "Название региона",
-    "published_at": "Дата публикации вакансии"
-}
 
 
 class UserInput:
@@ -17,7 +12,7 @@ class UserInput:
         # self.file_name = input('Введите название файла: ')
         # self.job_name = input('Введите название профессии: ')
 
-        self.file_name = 'csv_files_dif_currencies'
+        self.file_name = 'vacancies_dif_currencies.csv'
         self.job_name = 'Аналитик'
 
 
@@ -55,8 +50,8 @@ def calc_year_stats_mp():
     process = []
     q = Queue()
     currencies = pd.read_csv('currencies.csv')
-    for file_name in os.listdir(user_input.file_name):
-        p = Process(target=calc_year_stat_mp, args=(user_input.file_name + '/' + file_name, user_input.job_name, q, currencies.copy()))
+    for file_name in os.listdir(temp_folder):
+        p = Process(target=calc_year_stat_mp, args=(temp_folder + '/' + file_name, user_input.job_name, q, currencies.copy()))
         process.append(p)
         p.start()
 
@@ -81,7 +76,7 @@ def calc_area_stats():
     # df = pd.read_csv('csv_files_dif_currencies/part_2007.csv')
     # df = fill_df(df, currencies)
     df = pd.concat(df_res, ignore_index=True)
-    df.head(100).to_csv('3-4-1.csv', index=False, encoding='utf8')
+    # df.head(100).to_csv('3-4-1.csv', index=False, encoding='utf8')
     all_vac_num = df.shape[0]
     vac_percent = int(all_vac_num * 0.01)
 
@@ -127,6 +122,9 @@ if __name__ == '__main__':
     df_res = []
 
     user_input = UserInput()
+    temp_folder = 'csv_files_dif_currencies_temp'
+    separate.main(user_input.file_name, temp_folder)
     calc_year_stats_mp()
     calc_area_stats()
     print_stats()
+    shutil.rmtree(rf'./{temp_folder}')
