@@ -131,10 +131,10 @@ if __name__ == '__main__':
     temp_folder = 'csv_files_dif_currencies_temp'
 
     user_input = UserInput()
-    # separate.main(user_input.file_name, temp_folder)
+    separate.main(user_input.file_name, temp_folder)
     calc_year_stats_mp()
     calc_area_stats()
 
     report_3_4_3.main(user_input, st)
     print_stats()
-    # shutil.rmtree(rf'./{temp_folder}')
+    shutil.rmtree(rf'./{temp_folder}')
