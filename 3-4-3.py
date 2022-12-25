@@ -3,15 +3,13 @@ import os
 import shutil
 import pandas as pd
 import separate
-import report_3_4_2
+import report_3_4_3
 from multiprocessing import Process, Queue
 pd.options.mode.chained_assignment = None
 
 
 class Statistics:
     def __init__(self):
-        self.year_by_vac_num = {}
-        self.year_by_salary = {}
         self.year_by_vac_num_job = {}
         self.year_by_salary_job = {}
         self.vac_num_by_area = {}
@@ -29,9 +27,11 @@ class UserInput:
     def __init__(self):
         # self.file_name = input('Введите название файла: ')
         # self.job_name = input('Введите название профессии: ')
+        # self.area_name = input('Введите название региона: ')
 
         self.file_name = 'vacancies_dif_currencies.csv'
         self.job_name = 'Аналитик'
+        self.area_name = 'Москва'
 
 
 def fill_df(df, currencies):
@@ -55,12 +55,13 @@ def get_salary(x, currencies):
     return math.floor(salary * currencies.loc[currencies['date'] == date][salary_currency].values[0])
 
 
-def calc_year_stat_mp(file_name, job_name, q, currencies):
+def calc_year_stat_mp(file_name, job_name, area_name, q, currencies):
     df = pd.read_csv(file_name)
     df = fill_df(df, currencies)
     data_job = df[df['name'].str.contains(job_name, case=False)]
+    data_job = data_job[data_job['area_name'].str.contains(area_name, case=False)]
 
-    q.put([int(df['published_at'].values[0][:4]), df.shape[0], math.floor(df['salary'].mean()), data_job.shape[0], math.floor(data_job['salary'].mean()), df])
+    q.put([int(df['published_at'].values[0][:4]), data_job.shape[0], math.floor(data_job['salary'].mean()), df])
 
 
 def calc_year_stats_mp():
@@ -69,21 +70,17 @@ def calc_year_stats_mp():
     q = Queue()
     currencies = pd.read_csv('currencies.csv')
     for file_name in os.listdir(temp_folder):
-        p = Process(target=calc_year_stat_mp, args=(temp_folder + '/' + file_name, user_input.job_name, q, currencies.copy()))
+        p = Process(target=calc_year_stat_mp, args=(temp_folder + '/' + file_name, user_input.job_name, user_input.area_name, q, currencies.copy()))
         process.append(p)
         p.start()
 
     for p in process:
         p.join(1)
         data = q.get()
-        st.year_by_vac_num[data[0]] = data[1]
-        st.year_by_salary[data[0]] = data[2]
-        st.year_by_vac_num_job[data[0]] = data[3]
-        st.year_by_salary_job[data[0]] = data[4]
-        df_res.append(data[5])
+        st.year_by_vac_num_job[data[0]] = data[1]
+        st.year_by_salary_job[data[0]] = data[2]
+        df_res.append(data[3])
 
-    st.year_by_vac_num = dict(sorted(st.year_by_vac_num.items(), key=lambda i: i[0]))
-    st.year_by_salary = dict(sorted(st.year_by_salary.items(), key=lambda i: i[0]))
     st.year_by_vac_num_job = dict(sorted(st.year_by_vac_num_job.items(), key=lambda i: i[0]))
     st.year_by_salary_job = dict(sorted(st.year_by_salary_job.items(), key=lambda i: i[0]))
 
@@ -122,10 +119,8 @@ def calc_area_stats():
 
 
 def print_stats():
-    print(f'Динамика уровня зарплат по годам: {st.year_by_salary}')
-    print(f'Динамика количества вакансий по годам: {st.year_by_vac_num}')
-    print(f'Динамика уровня зарплат по годам для выбранной профессии: {st.year_by_salary_job}')
-    print(f'Динамика количества вакансий по годам для выбранной профессии: {st.year_by_vac_num_job}')
+    print(f'Динамика уровня зарплат по годам для выбранной профессии и региона: {st.year_by_salary_job}')
+    print(f'Динамика количества вакансий по годам для выбранной профессии и региона: {st.year_by_vac_num_job}')
     print(f'Уровень зарплат по городам (в порядке убывания): {st.salary_by_area}')
     print(f'Доля вакансий по городам (в порядке убывания): {st.vac_num_by_area}')
 
@@ -136,10 +131,10 @@ if __name__ == '__main__':
     temp_folder = 'csv_files_dif_currencies_temp'
 
     user_input = UserInput()
-    separate.main(user_input.file_name, temp_folder)
+    # separate.main(user_input.file_name, temp_folder)
     calc_year_stats_mp()
     calc_area_stats()
 
-    report_3_4_2.main(user_input, st)
+    report_3_4_3.main(user_input, st)
     print_stats()
-    shutil.rmtree(rf'./{temp_folder}')
+    # shutil.rmtree(rf'./{temp_folder}')
