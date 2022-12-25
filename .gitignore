@@ -2,6 +2,7 @@
 /venv
 /csv_files
 /csv_files_dif_currencies
+/csv_files_dif_currencies_temp
 *.csv
 *.png
 *.xlsx
@@ -10,3 +11,4 @@
 !3-2-2.csv
 !3-4-1.csv
 !report_3-4-2.pdf
+!currencies.csv
