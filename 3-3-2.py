@@ -23,7 +23,7 @@ class UserInput:
 
 def fill_df(df, currencies):
     currencies_to_work = list(currencies.loc[:, ~currencies.columns.isin(['date', 'Unnamed: 0'])].columns.values) + ['RUR']
-    df = df[df['salary_currency'].isin(currencies_to_work)]
+    # df = df[df['salary_currency'].isin(currencies_to_work)]
     df['salary'] = df.apply(lambda x: get_salary(x, currencies), axis=1)
     df.drop(columns=['salary_from', 'salary_to', 'salary_currency'], inplace=True)
     df = df.reindex(columns=['name', 'salary', 'area_name', 'published_at'], copy=True)
@@ -32,12 +32,13 @@ def fill_df(df, currencies):
 
 def get_salary(x, currencies):
     salary_from, salary_to, salary_currency, published_at = x.loc['salary_from'], x.loc['salary_to'], x.loc['salary_currency'], x.loc['published_at']
+    currencies_to_work = list(currencies.loc[:, ~currencies.columns.isin(['date', 'Unnamed: 0'])].columns.values)
     date = published_at[:7]
     if math.isnan(salary_to) or math.isnan(salary_from):
         salary = salary_to if math.isnan(salary_from) else salary_from
     else:
         salary = math.floor((salary_from + salary_to) / 2)
-    if salary_currency == 'RUR':
+    if salary_currency == 'RUR' or salary_currency not in currencies_to_work:
         return salary
     return math.floor(salary * currencies.loc[currencies['date'] == date][salary_currency].values[0])
 
@@ -81,7 +82,7 @@ def calc_area_stats():
     # df = pd.read_csv('csv_files_dif_currencies/part_2007.csv')
     # df = fill_df(df, currencies)
     df = pd.concat(df_res, ignore_index=True)
-    df.head(100).to_csv('3-4-1.csv', index=False, encoding='utf8')
+    df.head(100).to_csv('3-3-2.csv', index=False, encoding='utf8')
     all_vac_num = df.shape[0]
     vac_percent = int(all_vac_num * 0.01)
 

@@ -8,8 +8,9 @@
 *.xlsx
 *.pdf
 *.pstats
-!3-2-2.csv
+!checked/3-2-2.csv
 !3-4-1.csv
+!3-3-2.csv
 !report_3-4-2.pdf
 !report_3-4-3.pdf
 !currencies.csv
