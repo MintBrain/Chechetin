@@ -33,3 +33,7 @@
 
 # Задание 3.5.2
 ![Screenshot_644](https://user-images.githubusercontent.com/38864410/209829505-a44021c1-d947-409b-8406-c9514381083c.png)
+
+# Задание 3.5.3
+![Screenshot_645](https://user-images.githubusercontent.com/38864410/209843321-a7d2ee15-3c92-4f2b-a75a-2399e325c1fd.png)
+
