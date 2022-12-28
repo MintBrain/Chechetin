@@ -35,7 +35,7 @@ class UserInput:
 
 
 def fill_df(df, currencies):
-    currencies_to_work = list(currencies.loc[:, ~currencies.columns.isin(['date', 'Unnamed: 0'])].columns.values) + ['RUR']
+    currencies_to_work = list(currencies.loc[:, ~currencies.columns.isin(['date'])].columns.values) + ['RUR']
     df = df[df['salary_currency'].isin(currencies_to_work)]
     df['salary'] = df.apply(lambda x: get_salary(x, currencies), axis=1)
     df.drop(columns=['salary_from', 'salary_to', 'salary_currency'], inplace=True)

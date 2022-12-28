@@ -43,5 +43,5 @@ for i in range(0, len(months)):
     data2.loc[i] = [f'{months[i][3:]}-{months[i][:2]}', BYR, EUR, KZT, UAH, USD]
 
 
-data2.to_csv('currencies2.csv')
+data2.to_csv('currencies.csv', index=False)
 print(data2.head())
