@@ -30,3 +30,6 @@
 
 # Задание 3.4.1
 ![Screenshot_643](https://user-images.githubusercontent.com/38864410/209432942-5bfc17e3-f20c-4866-a925-4953bf3c554a.png)
+
+# Задание 3.5.2
+![Screenshot_644](https://user-images.githubusercontent.com/38864410/209829505-a44021c1-d947-409b-8406-c9514381083c.png)
